@@ -72,6 +72,9 @@
 #include "i2cdev.h"
 #include "autoconf.h"
 
+// Our tasks
+#include "controller_realtime.h"
+
 #ifndef CONFIG_MOTORS_START_DISARMED
 #define ARM_INIT true
 #else
@@ -199,6 +202,7 @@ void systemTask(void *arg)
   }
   soundInit();
   memInit();
+  realtimeTaskInit();
 
 #ifdef PROXIMITY_ENABLED
   proximityInit();
@@ -231,6 +235,11 @@ void systemTask(void *arg)
   if (stabilizerTest() == false) {
     pass = false;
     DEBUG_PRINT("stabilizer [FAIL]\n");
+  }
+
+  if (realtimeTaskTest() == false) {
+    pass = false;
+    DEBUG_PRINT("realtime controller [FAIL]\n");
   }
 
   #ifdef CONFIG_ESTIMATOR_KALMAN_ENABLE
