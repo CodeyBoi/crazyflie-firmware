@@ -131,6 +131,7 @@ void ledseqSetChargeLevel(const float chargeLevel);
 // System led sequences
 extern ledseqContext_t seq_calibrated;
 extern ledseqContext_t seq_alive;
+extern ledseqContext_t seq_test;
 extern ledseqContext_t seq_lowbat;
 extern ledseqContext_t seq_linkUp;
 extern ledseqContext_t seq_linkDown;

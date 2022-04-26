@@ -105,6 +105,19 @@ ledseqContext_t seq_alive = {
   .led = SYS_LED,
 };
 
+// TEST
+ledseqStep_t seq_test_def[] = {
+  { true, LEDSEQ_WAITMS(200)},
+  {false, LEDSEQ_WAITMS(200)},
+  {    0, LEDSEQ_LOOP},
+};
+
+ledseqContext_t seq_test = {
+  .sequence = seq_test_def,
+  .led = ERR_LED1,
+};
+// TEST END
+
 ledseqStep_t seq_linkup_def[] = {
   { true, LEDSEQ_WAITMS(1)},
   {false, LEDSEQ_WAITMS(0)},

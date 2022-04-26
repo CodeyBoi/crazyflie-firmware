@@ -5,6 +5,8 @@
 #include "static_mem.h"
 #include "task.h"
 
+#include "ledseq.h"
+
 // Allocate memory for a queue with length 1
 static xQueueHandle inputQueue;
 STATIC_MEM_QUEUE_ALLOC(inputQueue, 1, sizeof(int));
@@ -25,8 +27,14 @@ bool realtimeTaskTest() {
   return isInit;
 }
 
+/* LED blinking stuff */
+
+
 static void realtimeTask(void *parameters) {
   DEBUG_PRINT("Realtime task main function is running!");
+
+  ledseqRun(&seq_test);
+
   for (;;) {
     int input;
     if (pdTRUE == xQueueReceive(inputQueue, &input, portMAX_DELAY)) {
