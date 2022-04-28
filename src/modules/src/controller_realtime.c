@@ -5,10 +5,10 @@
 #include "static_mem.h"
 #include "task.h"
 
-#include "ledseq.h"
-
-//Test - ta bort denna sida
-#include "stabilizer_types.h"
+//Test
+#include "commander.h"
+#include "system.h"
+#include <string.h>
 
 // Allocate memory for a queue with length 1
 static xQueueHandle inputQueue;
@@ -30,20 +30,45 @@ bool realtimeTaskTest() {
   return isInit;
 }
 
-/* LED blinking stuff */
+static setpoint_t setpoint;
 
+static void setHoverSetpoint(setpoint_t *setpoint, float x, float y, float z, float yaw)
+{
+  memset(setpoint, 0, sizeof(setpoint_t));
+
+  setpoint->mode.z = modeAbs;
+  setpoint->position.z = z;
+
+
+  setpoint->mode.yaw = modeAbs;
+  setpoint->attitudeRate.yaw = yaw;
+
+
+  setpoint->mode.x = modeAbs;
+  setpoint->mode.y = modeAbs;
+  setpoint->velocity.x = x;
+  setpoint->velocity.y = y;
+
+  setpoint->velocity_body = true;
+}
 
 static void realtimeTask(void *parameters) {
   DEBUG_PRINT("Realtime task main function is running!\n");
-  uint32_t lastWakeTime = xTaskGetTickCount();   
+  //uint32_t lastWakeTime = xTaskGetTickCount();   
+  systemWaitStart();
+  vTaskDelay(1000);
   for (;;) {
+    vTaskDelay(500);
+    setHoverSetpoint(&setpoint, 0, 0, 4, 0);
+    commanderSetSetpoint(&setpoint, 3);
+
+    /*
     int input;
-    bool result = ledseqRun(&seq_test);
-    vTaskDelayUntil(&lastWakeTime, F2T(RATE_MAIN_LOOP));
-    DEBUG_PRINT("Result from ledseq %i\n", result);
     if (pdTRUE == xQueueReceive(inputQueue, &input, portMAX_DELAY)) {
       // Do stuff with input
     }
+    */
+
   }
 }
 
