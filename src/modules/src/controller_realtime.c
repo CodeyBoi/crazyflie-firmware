@@ -7,6 +7,9 @@
 
 #include "ledseq.h"
 
+//Test - ta bort denna sida
+#include "stabilizer_types.h"
+
 // Allocate memory for a queue with length 1
 static xQueueHandle inputQueue;
 STATIC_MEM_QUEUE_ALLOC(inputQueue, 1, sizeof(int));
@@ -32,11 +35,11 @@ bool realtimeTaskTest() {
 
 static void realtimeTask(void *parameters) {
   DEBUG_PRINT("Realtime task main function is running!\n");
-  lastWakeTime = xTaskGetTickCount();   
+  uint32_t lastWakeTime = xTaskGetTickCount();   
   for (;;) {
     int input;
     bool result = ledseqRun(&seq_test);
-    vTaskDelayUntil(&lastWakeTime, F2T(RATE_MAIN_LOOP))
+    vTaskDelayUntil(&lastWakeTime, F2T(RATE_MAIN_LOOP));
     DEBUG_PRINT("Result from ledseq %i\n", result);
     if (pdTRUE == xQueueReceive(inputQueue, &input, portMAX_DELAY)) {
       // Do stuff with input
