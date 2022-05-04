@@ -52,6 +52,7 @@
 #include "uart2.h"
 #include "comm.h"
 #include "stabilizer.h"
+#include "observer.h"
 #include "commander.h"
 #include "console.h"
 #include "usblink.h"
@@ -74,6 +75,7 @@
 
 // Our tasks
 #include "controller_realtime.h"
+
 
 #ifndef CONFIG_MOTORS_START_DISARMED
 #define ARM_INIT true
@@ -196,6 +198,7 @@ void systemTask(void *arg)
   deckInit();
   estimator = deckGetRequiredEstimator();
   stabilizerInit(estimator);
+  observerInit(estimator);
   if (deckGetRequiredLowInterferenceRadioMode() && platformConfigPhysicalLayoutAntennasAreClose())
   {
     platformSetLowInterferenceRadioMode();
@@ -203,6 +206,7 @@ void systemTask(void *arg)
   soundInit();
   memInit();
   realtimeTaskInit();
+  
 
 #ifdef PROXIMITY_ENABLED
   proximityInit();

@@ -32,6 +32,7 @@
 #include "motors.h"
 #include "pm.h"
 #include "stabilizer.h"
+#include "observer.h"
 #include "supervisor.h"
 
 /* Minimum summed motor PWM that means we are flying */
@@ -118,7 +119,7 @@ void supervisorUpdate(const sensorData_t *data)
 
   isTumbled = isTumbledCheck(data);
   if (isTumbled && isFlying) {
-    stabilizerSetEmergencyStop();
+    observerSetEmergencyStop();
   }
 
   canFly = canFlyCheck();

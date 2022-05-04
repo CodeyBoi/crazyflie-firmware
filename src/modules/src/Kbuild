@@ -30,6 +30,7 @@ obj-$(CONFIG_ESTIMATOR_KALMAN_ENABLE) += kalman_supervisor.o
 obj-y += log.o
 obj-y += mem.o
 obj-y += msp.o
+obj-y += observer.o
 obj-y += outlierFilter.o
 obj-y += param_logic.o
 obj-y += param_task.o

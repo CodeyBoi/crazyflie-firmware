@@ -68,6 +68,7 @@
 
 // Task priorities. Higher number higher priority
 #define STABILIZER_TASK_PRI     6
+#define OBSERVER_TASK_PRI       6
 #define REALTIME_TASK_PRI       5
 #define SENSORS_TASK_PRI        4
 #define ADC_TASK_PRI            3
@@ -158,6 +159,7 @@
 #define PLATFORM_SRV_TASK_NAME  "PLATFORM-SRV"
 
 #define REALTIME_TASK_NAME      "REALTIME CONTROLLER"
+#define OBSERVER_TASK_NAME      "OBSERVER"
 
 //Task stack sizes
 #define SYSTEM_TASK_STACKSIZE         (2* configMINIMAL_STACK_SIZE)
@@ -194,6 +196,7 @@
 #define PLATFORM_SRV_TASK_STACKSIZE   configMINIMAL_STACK_SIZE
 
 #define REALTIME_TASK_STACKSIZE       (3 * configMINIMAL_STACK_SIZE)
+#define OBSERVER_TASK_STACKSIZE       (3 * configMINIMAL_STACK_SIZE)
 
 //The radio channel. From 0 to 125
 #define RADIO_CHANNEL 80
