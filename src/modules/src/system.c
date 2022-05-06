@@ -75,7 +75,7 @@
 
 // Our tasks
 #include "controller_realtime.h"
-#include "stabilizer_new.h"
+//#include "stabilizer_new.h"
 
 
 #ifndef CONFIG_MOTORS_START_DISARMED
@@ -198,9 +198,8 @@ void systemTask(void *arg)
 
   deckInit();
   estimator = deckGetRequiredEstimator();
-  //stabilizerInit(estimator); 
   observerInit(estimator);
-  stabilizerNewInit();
+  stabilizerInit();
   if (deckGetRequiredLowInterferenceRadioMode() && platformConfigPhysicalLayoutAntennasAreClose())
   {
     platformSetLowInterferenceRadioMode();
@@ -242,11 +241,14 @@ void systemTask(void *arg)
     pass = false;
     DEBUG_PRINT("stabilizer [FAIL]\n");
   }
-
-  if (realtimeTaskTest() == false) {
+  if (observerTest() == false) {
     pass = false;
-    DEBUG_PRINT("realtime controller [FAIL]\n");
+    DEBUG_PRINT("observer [FAIL]\n");
   }
+  // // if (realtimeTaskTest() == false) {
+  // //   pass = false;
+  // //   DEBUG_PRINT("realtime controller [FAIL]\n");
+  // }
 
   #ifdef CONFIG_ESTIMATOR_KALMAN_ENABLE
   if (estimatorKalmanTaskTest() == false) {

@@ -31,7 +31,7 @@
 
 #include "estimator.h"
 
-#define EMERGENCY_STOP_TIMEOUT_DISABLED (-1)
+//#define EMERGENCY_STOP_TIMEOUT_DISABLED (-1)
 
 /**
  * Initialize the observer subsystem and launch the observer loop task.

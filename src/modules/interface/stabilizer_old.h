@@ -23,36 +23,38 @@
  *
  * stabilizer.h: Stabilizer orchestrator
  */
-#ifndef STABILIZER_NEW_H_
-#define STABILIZER_NEW_H_
+#ifndef STABILIZER_H_
+#define STABILIZER_H_
 
 #include <stdbool.h>
 #include <stdint.h>
 
-//#define EMERGENCY_STOP_TIMEOUT_DISABLED (-1)
+#include "estimator.h"
+
+#define EMERGENCY_STOP_TIMEOUT_DISABLED (-1)
 
 /**
  * Initialize the stabilizer subsystem and launch the stabilizer loop task.
  * The stabilizer loop task will wait on systemWaitStart() before running.
  */
-void stabilizerNewInit();
+void stabilizerInit(StateEstimatorType estimator);
 
 /**
  * Test the stabilizer subsystem. Calls test for all the stabilizer related
  * sensors.
  * @return True if all test has passed. False otherwise.
  */
-bool stabilizerNewTest(void);
+bool stabilizerTest(void);
 
 /**
  * Enable emergency stop, will shut-off energy to the motors.
  */
-void stabilizerNewSetEmergencyStop();
+void stabilizerSetEmergencyStop();
 
 /**
  * Disable emergency stop, will enable energy to the motors.
  */
-//void stabilizerResetEmergencyStop();
+void stabilizerResetEmergencyStop();
 
 /**
  * Restart the countdown until emergercy stop will be enabled.
@@ -60,7 +62,7 @@ void stabilizerNewSetEmergencyStop();
  * @param timeout Timeout in stabilizer loop tick. The stabilizer loop rate is
  *                RATE_MAIN_LOOP.
  */
-void stabilizerNewSetEmergencyStopTimeout(int timeout);
+void stabilizerSetEmergencyStopTimeout(int timeout);
 
 
-#endif /* STABILIZER_NEW_H_ */
+#endif /* STABILIZER_H_ */

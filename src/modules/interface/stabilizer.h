@@ -37,7 +37,7 @@
  * Initialize the stabilizer subsystem and launch the stabilizer loop task.
  * The stabilizer loop task will wait on systemWaitStart() before running.
  */
-void stabilizerInit(StateEstimatorType estimator);
+void stabilizerInit();
 
 /**
  * Test the stabilizer subsystem. Calls test for all the stabilizer related
@@ -54,7 +54,7 @@ void stabilizerSetEmergencyStop();
 /**
  * Disable emergency stop, will enable energy to the motors.
  */
-void stabilizerResetEmergencyStop();
+//void stabilizerResetEmergencyStop();
 
 /**
  * Restart the countdown until emergercy stop will be enabled.
