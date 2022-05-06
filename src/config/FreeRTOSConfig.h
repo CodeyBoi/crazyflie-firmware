@@ -145,6 +145,7 @@ to exclude the API function. */
 #define TASK_PROXIMITY_ID_NBR   6
 
 #define TASK_OBSERVER_ID_NBR    7
+#define TASK_STABILIZER_NEW_ID_NBR  8
 
 #define configASSERT( x )  if( ( x ) == 0 ) assertFail(#x, __FILE__, __LINE__ )
 

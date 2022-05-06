@@ -56,6 +56,8 @@
 #include "static_mem.h"
 #include "rateSupervisor.h"
 
+#include "monitor.h"
+
 static bool isInit;
 static bool emergencyStop = false;
 static int emergencyStopTimeout = EMERGENCY_STOP_TIMEOUT_DISABLED;
@@ -66,6 +68,7 @@ static int emergencyStopTimeout = EMERGENCY_STOP_TIMEOUT_DISABLED;
 //static setpoint_t setpoint;
 static sensorData_t sensorData;
 static state_t state;
+
 // For scratch storage - never logged or passed to other subsystems.
 //static setpoint_t tempSetpoint;
 
@@ -262,6 +265,9 @@ static void observerTask(void* param)
     // we are ok to fly, or if the Crazyflie is in flight.
     //
     supervisorUpdate(&sensorData);
+
+    //här kan vi få race kanske om vi läser sensorvärden så långt innan vi skriver?
+    setState(state, sensorData);
 
     // Ändra detta så det funkar med ny struktur?
     /*

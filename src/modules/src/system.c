@@ -75,6 +75,7 @@
 
 // Our tasks
 #include "controller_realtime.h"
+#include "stabilizer_new.h"
 
 
 #ifndef CONFIG_MOTORS_START_DISARMED
@@ -197,15 +198,16 @@ void systemTask(void *arg)
 
   deckInit();
   estimator = deckGetRequiredEstimator();
-  stabilizerInit(estimator);
+  //stabilizerInit(estimator); 
   observerInit(estimator);
+  stabilizerNewInit();
   if (deckGetRequiredLowInterferenceRadioMode() && platformConfigPhysicalLayoutAntennasAreClose())
   {
     platformSetLowInterferenceRadioMode();
   }
   soundInit();
   memInit();
-  realtimeTaskInit();
+  //realtimeTaskInit();
   
 
 #ifdef PROXIMITY_ENABLED

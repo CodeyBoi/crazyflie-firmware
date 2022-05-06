@@ -11,6 +11,7 @@ typedef struct monitor_s {
 } monitor_t;
 
 monitor_t getState();
-void setState(const state_t, const sensorData_t);
+
+void setState(state_t, sensorData_t); 
 
 #endif

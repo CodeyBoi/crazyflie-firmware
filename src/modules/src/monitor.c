@@ -1,7 +1,9 @@
 #include "monitor.h"
 #include "stdatomic.h"
+#include <string.h>
 
 static monitor_t monitor;
+static monitor_t temp;
 
 char mutex = 1;
 static const char available = 1;
@@ -15,8 +17,7 @@ monitor_t getState(){
         // mutex upptagen, testa igen:)
     }
 
-    monitor_t temp;
-    memcpy(monitor, temp, sizeof(monitor_t));
+    memcpy(&monitor, &temp, sizeof(monitor_t));
 
     //unmutex
     atomic_exchange(&mutex, 1);
@@ -24,14 +25,15 @@ monitor_t getState(){
     return temp;
 }
 
-void setState(const state_t state, const sensorData_t sensorData){
+//vi vill nog ha pointers här
+void setState(state_t state, sensorData_t sensorData){
     //mutex
     while(!atomic_compare_exchange_weak(&mutex, &available, 0)){
         // mutex upptagen, testa igen:)
     }
     
-    memcpy(state, monitor.state, sizeof(state_t));
-    memcpy(sensorData, monitor.sensorData, sizeof(sensorData_t));
+    memcpy(&state, &monitor.state, sizeof(state_t));
+    memcpy(&sensorData, &monitor.sensorData, sizeof(sensorData_t));
 
     //unmutex
     atomic_exchange(&mutex, 1);
