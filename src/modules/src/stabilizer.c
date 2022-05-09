@@ -62,7 +62,7 @@ static bool isInit;
 static bool emergencyStop = false;
 static int emergencyStopTimeout = EMERGENCY_STOP_TIMEOUT_DISABLED;
 
-//static uint32_t inToOutLatency;
+static uint32_t inToOutLatency;
 
 // State variables for the stabilizer
 static setpoint_t setpoint;
@@ -75,30 +75,7 @@ static ControllerType controllerType;
 
 static STATS_CNT_RATE_DEFINE(stabilizerRate, 500);
 static rateSupervisor_t rateSupervisorContext;
-//static bool rateWarningDisplayed = false;
-
-/*
-static struct {
-  // position - mm
-  int16_t x;
-  int16_t y;
-  int16_t z;
-  // velocity - mm / sec
-  int16_t vx;
-  int16_t vy;
-  int16_t vz;
-  // acceleration - mm / sec^2
-  int16_t ax;
-  int16_t ay;
-  int16_t az;
-  // compressed quaternion, see quatcompress.h
-  int32_t quat;
-  // angular velocity - milliradians / sec
-  int16_t rateRoll;
-  int16_t ratePitch;
-  int16_t rateYaw;
-} stateCompressed;
-*/
+static bool rateWarningDisplayed = false;
 
 static struct {
   // position - mm
@@ -119,42 +96,11 @@ STATIC_MEM_TASK_ALLOC(stabilizerTask, STABILIZER_TASK_STACKSIZE);
 
 static void stabilizerTask(void* param);
 
-/*
 static void calcSensorToOutputLatency(const sensorData_t *sensorData)
 {
   uint64_t outTimestamp = usecTimestamp();
   inToOutLatency = outTimestamp - sensorData->interruptTimestamp;
 }
-*/
-
-/*
-static void compressState()
-{
-  stateCompressed.x = state.position.x * 1000.0f;
-  stateCompressed.y = state.position.y * 1000.0f;
-  stateCompressed.z = state.position.z * 1000.0f;
-
-  stateCompressed.vx = state.velocity.x * 1000.0f;
-  stateCompressed.vy = state.velocity.y * 1000.0f;
-  stateCompressed.vz = state.velocity.z * 1000.0f;
-
-  stateCompressed.ax = state.acc.x * 9.81f * 1000.0f;
-  stateCompressed.ay = state.acc.y * 9.81f * 1000.0f;
-  stateCompressed.az = (state.acc.z + 1) * 9.81f * 1000.0f;
-
-  float const q[4] = {
-    state.attitudeQuaternion.x,
-    state.attitudeQuaternion.y,
-    state.attitudeQuaternion.z,
-    state.attitudeQuaternion.w};
-  stateCompressed.quat = quatcompress(q);
-
-  float const deg2millirad = ((float)M_PI * 1000.0f) / 180.0f;
-  stateCompressed.rateRoll = sensorData.gyro.x * deg2millirad;
-  stateCompressed.ratePitch = -sensorData.gyro.y * deg2millirad;
-  stateCompressed.rateYaw = sensorData.gyro.z * deg2millirad;
-}
-*/
 
 static void compressSetpoint()
 {
@@ -258,33 +204,22 @@ static void stabilizerTask(void* param)
       DEBUG_PRINT("Current state: %d\n", (int) (100*currentState.sensorData.gyro.x));
     }
 
-    // update sensorData struct (for logging variables)
-
-    /*
-    sensorsAcquire(&sensorData, tick);
-
     if (healthShallWeRunTest()) {
-      healthRunTests(&sensorData);
+      healthRunTests(&currentState.sensorData);
     } else {
-      // allow to update estimator dynamically
-      if (getStateEstimator() != estimatorType) {
-        stateEstimatorSwitchTo(estimatorType);
-        estimatorType = getStateEstimator();
-      }
-      */
+      
       // allow to update controller dynamically
       if (getControllerType() != controllerType) {
         controllerInit(controllerType);
         controllerType = getControllerType();
       }
 
-      /*
-      stateEstimator(&state, tick);
-      compressState();
-      */
-
       if (crtpCommanderHighLevelGetSetpoint(&tempSetpoint, &currentState.state, tick)) {
         commanderSetSetpoint(&tempSetpoint, COMMANDER_PRIORITY_HIGHLEVEL);
+      } else {
+        if(counter >= 1000){
+          DEBUG_PRINT("crtpCommanderHighLevelGetSetpoint FALSE\n");
+        }
       }
 
       commanderGetSetpoint(&setpoint, &currentState.state);
@@ -299,14 +234,13 @@ static void stabilizerTask(void* param)
       collisionAvoidanceUpdateSetpoint(&setpoint, &currentState.sensorData, &currentState.state, tick);
 
       controller(&control, &setpoint, &currentState.sensorData, &currentState.state, tick); 
-
      
       checkEmergencyStopTimeout();
 
       //
       // The supervisor module keeps track of Crazyflie state such as if
       // we are ok to fly, or if the Crazyflie is in flight.
-      
+      //
       supervisorUpdate(&currentState.sensorData);
 
       if (emergencyStop || (systemIsArmed() == false)) {
@@ -315,17 +249,16 @@ static void stabilizerTask(void* param)
         powerDistribution(&control);
       }
       
+// #ifdef CONFIG_DECK_USD
+//       // Log data to uSD card if configured
+//       if (usddeckLoggingEnabled()
+//           && usddeckLoggingMode() == usddeckLoggingMode_SynchronousStabilizer
+//           && RATE_DO_EXECUTE(usddeckFrequency(), tick)) {
+//         usddeckTriggerLogging();
+//       }
+//#endif
 
-/*
-#ifdef CONFIG_DECK_USD
-      // Log data to uSD card if configured
-      if (usddeckLoggingEnabled()
-          && usddeckLoggingMode() == usddeckLoggingMode_SynchronousStabilizer
-          && RATE_DO_EXECUTE(usddeckFrequency(), tick)) {
-        usddeckTriggerLogging();
-      }
-#endif
-      calcSensorToOutputLatency(&sensorData);
+      calcSensorToOutputLatency(&currentState.sensorData);
       tick++;
       STATS_CNT_RATE_EVENT(&stabilizerRate);
 
@@ -335,9 +268,7 @@ static void stabilizerTask(void* param)
           rateWarningDisplayed = true;
         }
       }
-      
     }
-    */
   }
 }
 

@@ -23,7 +23,7 @@
  *
  *
  */
-#define DEBUG_MODULE "STAB"
+#define DEBUG_MODULE "OBS"
 
 #include <math.h>
 
@@ -205,17 +205,6 @@ bool observerTest(void)
   return pass;
 }
 
-// static void checkEmergencyStopTimeout()
-// {
-//   if (emergencyStopTimeout >= 0) {
-//     emergencyStopTimeout -= 1;
-
-//     if (emergencyStopTimeout == 0) {
-//       emergencyStop = true;
-//     }
-//   }
-//}
-
 /* The stabilizer loop runs at 1kHz (stock) or 500Hz (kalman). It is the
  * responsibility of the different functions to run slower by skipping call
  * (ie. returning without modifying the output structure).
@@ -252,7 +241,7 @@ static void observerTask(void* param)
     sensorsAcquire(&sensorData, tick);
 
     if(++counter >= 1000){
-      DEBUG_PRINT("sensorData, temp: %d\n", (int) (100*sensorData.gyro.x));
+      DEBUG_PRINT("sensorData, gyro x: %d\n", (int) (100*sensorData.gyro.x));
       counter = 0;
     }
 
@@ -264,52 +253,14 @@ static void observerTask(void* param)
 
     stateEstimator(&state, tick);
     compressState();
-  
-    //checkEmergencyStopTimeout();
-
-    //
-    // The supervisor module keeps track of Crazyflie state such as if
-    // we are ok to fly, or if the Crazyflie is in flight.
-    //
-    //supervisorUpdate(&sensorData);
 
     //här kan vi få race kanske om vi läser sensorvärden så långt innan vi skriver?
     setState(state, sensorData);
 
-    // Ändra detta så det funkar med ny struktur?
-    /*
-    calcSensorToOutputLatency(&sensorData);
     tick++;
-    STATS_CNT_RATE_EVENT(&stabilizerRate);
 
-    if (!rateSupervisorValidate(&rateSupervisorContext, xTaskGetTickCount())) {
-        if (!rateWarningDisplayed) {
-            DEBUG_PRINT("WARNING: stabilizer loop rate is off (%lu)\n", rateSupervisorLatestCount(&rateSupervisorContext));
-            rateWarningDisplayed = true;
-        }
-    }
-    */
   }
 }
-
-// void observerSetEmergencyStop()
-// {
-//   //TODO monitor?
-//   emergencyStop = true;
-// }
-
-// void observerResetEmergencyStop()
-// {
-//   //TODO monitor?
-//   emergencyStop = false;
-// }
-
-// void observerSetEmergencyStopTimeout(int timeout)
-// {
-//   //TODO monitor?
-//   emergencyStop = false;
-//   emergencyStopTimeout = timeout;
-//}
 
 /**
  * Parameters to set the estimator and controller type
