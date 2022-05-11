@@ -243,8 +243,8 @@ void positionController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
   setpoint->attitude.pitch = runPid(state_body_x, &this.pidP, setp_body_x, DT);
   setpoint->attitude.roll = runPid(state_body_y, &this.pidR, setp_body_y, DT);
 
-  setpoint->attitude.roll  = constrain(setpoint->attitude.roll,  -rLimit, rLimit);
-  setpoint->attitude.pitch = constrain(setpoint->attitude.pitch, -pLimit, pLimit);
+  //setpoint->attitude.roll  = constrain(setpoint->attitude.roll,  -rLimit, rLimit); //ska detta göras?
+  //setpoint->attitude.pitch = constrain(setpoint->attitude.pitch, -pLimit, pLimit); //ska detta göras? 
 
     // Thrust
   //float thrustRaw = runPid(state->velocity.z, &this.pidVZ, setpoint->velocity.z, DT);
