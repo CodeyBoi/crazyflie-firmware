@@ -319,6 +319,8 @@ void positionControllerResetAllPID()
   pidReset(&this.pidVX.pid);
   pidReset(&this.pidVY.pid);
   pidReset(&this.pidVZ.pid);
+  pidReset(&this.pidP.pid);
+  pidReset(&this.pidR.pid);
 }
 
 void positionControllerResetAllfilters() {
@@ -328,6 +330,8 @@ void positionControllerResetAllfilters() {
   filterReset(&this.pidVX.pid, POSITION_RATE, velFiltCutoff, velFiltEnable);
   filterReset(&this.pidVY.pid, POSITION_RATE, velFiltCutoff, velFiltEnable);
   filterReset(&this.pidVZ.pid, POSITION_RATE, velZFiltCutoff, velZFiltEnable);
+  filterReset(&this.pidP.pid, POSITION_RATE, velZFiltCutoff, velZFiltEnable); // ej klar
+  filterReset(&this.pidR.pid, POSITION_RATE, velZFiltCutoff, velZFiltEnable); // ej klar
 }
 
 /**
