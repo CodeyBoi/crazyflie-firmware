@@ -202,6 +202,11 @@ void positionControllerInit()
       this.pidVY.pid.dt, POSITION_RATE, velFiltCutoff, velFiltEnable);
   pidInit(&this.pidVZ.pid, this.pidVZ.setpoint, this.pidVZ.init.kp, this.pidVZ.init.ki, this.pidVZ.init.kd,
       this.pidVZ.pid.dt, POSITION_RATE, velZFiltCutoff, velZFiltEnable);
+
+  pidInit(&this.pidP.pid, this.pidP.setpoint, this.pidP.init.kp, this.pidP.init.ki, this.pidP.init.kd,
+      this.pidP.pid.dt, POSITION_RATE, velFiltCutoff, velFiltEnable); //ej klar
+  pidInit(&this.pidR.pid, this.pidR.setpoint, this.pidR.init.kp, this.pidR.init.ki, this.pidR.init.kd,
+      this.pidR.pid.dt, POSITION_RATE, velZFiltCutoff, velZFiltEnable); // ej klar
 }
 
 static float runPid(float input, struct pidAxis_s *axis, float setpoint, float dt) {
