@@ -57,7 +57,7 @@ void pidInit(PidObject* pid, const float desired, const float kp,
   }
 }
 
-float pidUpdate(PidObject* pid, const float measured, const bool updateError)
+float pidUpdate(PidObject* pid, const float measured, const bool updateError, bool isZPos)
 {
     float output = 0.0f;
 
@@ -69,18 +69,21 @@ float pidUpdate(PidObject* pid, const float measured, const bool updateError)
     pid->outP = pid->kp * pid->error;
     output += pid->outP;
 
-    float deriv = (pid->error - pid->prevError) / pid->dt;
-    #ifdef PID_FILTER_ALL
-      pid->deriv = deriv;
-    #else
-      if (pid->enableDFilter){
-        pid->deriv = lpf2pApply(&pid->dFilter, deriv);
-      } else {
+    if (!isZPos) {
+      float deriv = (pid->error - pid->prevError) / pid->dt;
+
+      #ifdef PID_FILTER_ALL
         pid->deriv = deriv;
+      #else
+        if (pid->enableDFilter){
+          pid->deriv = lpf2pApply(&pid->dFilter, deriv);
+        } else {
+          pid->deriv = deriv;
+        }
+      #endif
+      if (isnan(pid->deriv)) {
+        pid->deriv = 0;
       }
-    #endif
-    if (isnan(pid->deriv)) {
-      pid->deriv = 0;
     }
 
     pid->outD = pid->kd * pid->deriv;

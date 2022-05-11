@@ -128,7 +128,7 @@ void pidReset(PidObject* pid);
  *                        Set to False if pidSetError() has been used.
  * @return PID algorithm output
  */
-float pidUpdate(PidObject* pid, const float measured, const bool updateError);
+float pidUpdate(PidObject* pid, const float measured, const bool updateError, const bool isZPos);
 
 /**
  * Set a new set point for the PID to track.

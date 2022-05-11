@@ -204,11 +204,11 @@ void positionControllerInit()
       this.pidVZ.pid.dt, POSITION_RATE, velZFiltCutoff, velZFiltEnable);
 }
 
-static float runPid(float input, struct pidAxis_s *axis, float setpoint, float dt) {
+static float runPid(float input, struct pidAxis_s *axis, float setpoint, float dt, const bool isZPos) {
   axis->setpoint = setpoint;
 
   pidSetDesired(&axis->pid, axis->setpoint);
-  return pidUpdate(&axis->pid, input, true);
+  return pidUpdate(&axis->pid, input, true, isZPos);
 }
 
 
@@ -235,15 +235,16 @@ void positionController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
   //float globalvx = setpoint->velocity.x;
   //float globalvy = setpoint->velocity.y;
 
-  setpoint->attitude.pitch = runPid(state_body_x, &this.pidP, setp_body_x, DT);
-  setpoint->attitude.roll = runPid(state_body_y, &this.pidR, setp_body_y, DT);
+  setpoint->attitude.pitch = runPid(state_body_x, &this.pidP, setp_body_x, DT, false);
+  setpoint->attitude.roll = runPid(state_body_y, &this.pidR, setp_body_y, DT, false);
 
   setpoint->attitude.roll  = constrain(setpoint->attitude.roll,  -rLimit, rLimit);
   setpoint->attitude.pitch = constrain(setpoint->attitude.pitch, -pLimit, pLimit);
 
     // Thrust
   //float thrustRaw = runPid(state->velocity.z, &this.pidVZ, setpoint->velocity.z, DT);
-  float thrustRaw = runPid(state->position.z, &this.pidZ, setpoint->position.z, DT);
+  this.pidZ.pid.deriv = state->velocity.z;
+  float thrustRaw = runPid(state->position.z, &this.pidZ, setpoint->position.z, DT, true);
   // Scale the thrust and add feed forward term
   *thrust = thrustRaw*thrustScale + this.thrustBase;
   // Check for minimum thrust
