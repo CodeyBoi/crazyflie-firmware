@@ -86,7 +86,7 @@ float pidUpdate(PidObject* pid, const float measured, const bool updateError)
     pid->outD = pid->kd * pid->deriv;
     output += pid->outD;
 
-    pid->integ += pid->error * pid->dt;
+    pid->integ += pid->error * pid->dt; //den här kanske vi kan updtera
 
     // Constrain the integral (unless the iLimit is zero)
     if(pid->iLimit != 0)

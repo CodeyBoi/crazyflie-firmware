@@ -59,6 +59,9 @@ struct this_s {
   struct pidAxis_s pidY;
   struct pidAxis_s pidZ;
 
+  struct pidAxis_s pidP;
+  struct pidAxis_s pidR;
+
   uint16_t thrustBase; // approximate throttle needed when in perfect hover. More weight/older battery can use a higher value
   uint16_t thrustMin;  // Minimum thrust value to output
 };
@@ -66,7 +69,7 @@ struct this_s {
 // Maximum roll/pitch angle permited
 static float rLimit  = 20;
 static float pLimit  = 20;
-static float rpLimitOverhead = 1.10f;
+//static float rpLimitOverhead = 1.10f;
 // Velocity maximums
 static float xVelMax = 1.0f;
 static float yVelMax = 1.0f;
@@ -150,12 +153,31 @@ static struct this_s this = {
 
   .pidZ = {
     .init = {
-      .kp = 2.0f,
-      .ki = 0.5f,
-      .kd = 0.0f,
+      .kp = 0.2f,  //ändrad från 2.0
+      .ki = 0.0f,  //från 0.5
+      .kd = 0.5f,  //från 0.0
     },
     .pid.dt = DT,
   },
+
+  .pidP = {
+    .init = {
+      .kp = 0.2f,  
+      .ki = 0.0f,  
+      .kd = 0.5f,  
+    },
+    .pid.dt = DT,
+  },
+
+  .pidR = {
+    .init = {
+      .kp = 0.2f,  
+      .ki = 0.0f,  
+      .kd = 0.5f,  
+    },
+    .pid.dt = DT,
+  },
+
   #ifdef IMPROVED_BARO_Z_HOLD
     .thrustBase = 38000,
   #else
@@ -210,9 +232,27 @@ void positionController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
   state_body_x = state->position.x * cosyaw + state->position.y * sinyaw;
   state_body_y = -state->position.x * sinyaw + state->position.y * cosyaw;
     
-  float globalvx = setpoint->velocity.x;
-  float globalvy = setpoint->velocity.y;
+  //float globalvx = setpoint->velocity.x;
+  //float globalvy = setpoint->velocity.y;
 
+  setpoint->attitude.pitch = runPid(state_body_x, &this.pidP, setp_body_x, DT);
+  setpoint->attitude.roll = runPid(state_body_y, &this.pidR, setp_body_y, DT);
+
+  setpoint->attitude.roll  = constrain(setpoint->attitude.roll,  -rLimit, rLimit);
+  setpoint->attitude.pitch = constrain(setpoint->attitude.pitch, -pLimit, pLimit);
+
+    // Thrust
+  //float thrustRaw = runPid(state->velocity.z, &this.pidVZ, setpoint->velocity.z, DT);
+  float thrustRaw = runPid(state->position.z, &this.pidZ, setpoint->position.z, DT);
+  // Scale the thrust and add feed forward term
+  *thrust = thrustRaw*thrustScale + this.thrustBase;
+  // Check for minimum thrust
+  if (*thrust < this.thrustMin) {
+    *thrust = this.thrustMin;
+  }
+    // saturate
+  *thrust = constrain(*thrust, 0, UINT16_MAX);
+/*
   //X, Y
   if (setpoint->mode.x == modeAbs) {
     setpoint->velocity.x = runPid(state_body_x, &this.pidX, setp_body_x, DT);
@@ -253,7 +293,8 @@ void velocityController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
   attitude->pitch = constrain(attitude->pitch, -pLimit, pLimit);
 
   // Thrust
-  float thrustRaw = runPid(state->velocity.z, &this.pidVZ, setpoint->velocity.z, DT);
+  //float thrustRaw = runPid(state->velocity.z, &this.pidVZ, setpoint->velocity.z, DT);
+  float thrustRaw = runPid(state->position.z, &this.pidZ, setpoint->position.z, DT);
   // Scale the thrust and add feed forward term
   *thrust = thrustRaw*thrustScale + this.thrustBase;
   // Check for minimum thrust
@@ -262,6 +303,7 @@ void velocityController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
   }
     // saturate
   *thrust = constrain(*thrust, 0, UINT16_MAX);
+  */
 }
 
 void positionControllerResetAllPID()
