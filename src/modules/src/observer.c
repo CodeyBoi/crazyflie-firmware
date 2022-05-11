@@ -57,6 +57,7 @@
 #include "rateSupervisor.h"
 
 #include "monitor.h"
+#include "estimator_kalman.h"
 
 static bool isInit;
 //static bool emergencyStop = false;
@@ -218,6 +219,8 @@ static void observerTask(void* param)
 
   //Wait for the system to be fully started to start stabilization loop
   systemWaitStart();
+  
+  estimatorKalmanTaskInit();  // TODO: does this work?
 
   DEBUG_PRINT("Wait for sensor calibration...\n");
 

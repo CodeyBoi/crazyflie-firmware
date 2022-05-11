@@ -99,12 +99,12 @@
 
 
 // Semaphore to signal that we got data from the stabilizer loop to process
-static SemaphoreHandle_t runTaskSemaphore;
+//static SemaphoreHandle_t runTaskSemaphore;
 
 // Mutex to protect data that is shared between the task and
 // functions called by the stabilizer loop
-static SemaphoreHandle_t dataMutex;
-static StaticSemaphore_t dataMutexBuffer;
+//static SemaphoreHandle_t dataMutex;
+//static StaticSemaphore_t dataMutexBuffer;
 
 
 /**
@@ -176,21 +176,34 @@ static const bool useBaroUpdate = true;
 static const bool useBaroUpdate = false;
 #endif
 
-static void kalmanTask(void* parameters);
+//static void kalmanTask(void* parameters);
 static bool predictStateForward(uint32_t osTick, float dt);
 static bool updateQueuedMeasurements(const uint32_t tick);
 
-STATIC_MEM_TASK_ALLOC_STACK_NO_DMA_CCM_SAFE(kalmanTask, 3 * configMINIMAL_STACK_SIZE);
+static uint32_t lastPrediction;
+static uint32_t nextPrediction;
+static uint32_t lastPNUpdate;
+
+//STATIC_MEM_TASK_ALLOC_STACK_NO_DMA_CCM_SAFE(kalmanTask, 3 * configMINIMAL_STACK_SIZE);
 
 // --------------------------------------------------
 
 // Called one time during system startup
 void estimatorKalmanTaskInit() {
-  vSemaphoreCreateBinary(runTaskSemaphore);
+  
+  // We don't need any semphore stuff since this is no longer a thread.
 
-  dataMutex = xSemaphoreCreateMutexStatic(&dataMutexBuffer);
+  //vSemaphoreCreateBinary(runTaskSemaphore);
 
-  STATIC_MEM_TASK_CREATE(kalmanTask, kalmanTask, KALMAN_TASK_NAME, NULL, KALMAN_TASK_PRI);
+  //dataMutex = xSemaphoreCreateMutexStatic(&dataMutexBuffer);
+
+  //STATIC_MEM_TASK_CREATE(kalmanTask, kalmanTask, KALMAN_TASK_NAME, NULL, KALMAN_TASK_PRI);
+
+  lastPrediction = xTaskGetTickCount();
+  nextPrediction = xTaskGetTickCount();
+  lastPNUpdate = xTaskGetTickCount();
+
+  //rateSupervisorInit(&rateSupervisorContext, xTaskGetTickCount(), ONE_SECOND, PREDICT_RATE - 1, PREDICT_RATE + 1, 1);
 
   isInit = true;
 }
@@ -199,19 +212,14 @@ bool estimatorKalmanTaskTest() {
   return isInit;
 }
 
-static void kalmanTask(void* parameters) {
-  systemWaitStart();
+void estimatorKalman(state_t *state, const uint32_t tick)
+{
+  // Copy the latest state, as previously calculated
+  memcpy(state, &taskEstimatorState, sizeof(state_t));
 
-  uint32_t lastPrediction = xTaskGetTickCount();
-  uint32_t nextPrediction = xTaskGetTickCount();
-  uint32_t lastPNUpdate = xTaskGetTickCount();
+  /* The following is the code from estimatorTask! This calculates the new state */
 
-  rateSupervisorInit(&rateSupervisorContext, xTaskGetTickCount(), ONE_SECOND, PREDICT_RATE - 1, PREDICT_RATE + 1, 1);
-
-  while (true) {
-    xSemaphoreTake(runTaskSemaphore, portMAX_DELAY);
-
-    // If the client triggers an estimator reset via parameter update
+  // If the client triggers an estimator reset via parameter update
     if (resetEstimation) {
       estimatorKalmanInit();
       paramSetInt(paramGetVarId("kalman", "resetEstimation"), 0);
@@ -253,9 +261,19 @@ static void kalmanTask(void* parameters) {
       }
     }
 
+    static int count = 0;
     {
       if(updateQueuedMeasurements(osTick)) {
         doneUpdate = true;
+        if(++count>1000){
+          DEBUG_PRINT("Kalman YES update\n");
+          count = 0;
+        }
+      } else {
+        if(++count>1000){
+          DEBUG_PRINT("Kalman NO update\n");
+          count = 0;
+        }
       }
     }
 
@@ -284,25 +302,11 @@ static void kalmanTask(void* parameters) {
      * Finally, the internal state is externalized.
      * This is done every round, since the external state includes some sensor data
      */
-    xSemaphoreTake(dataMutex, portMAX_DELAY);
+    //xSemaphoreTake(dataMutex, portMAX_DELAY);
     kalmanCoreExternalizeState(&coreData, &taskEstimatorState, &accLatest, osTick);
-    xSemaphoreGive(dataMutex);
+    //xSemaphoreGive(dataMutex);
 
     STATS_CNT_RATE_EVENT(&updateCounter);
-  }
-}
-
-void estimatorKalman(state_t *state, const uint32_t tick)
-{
-  // This function is called from the stabilizer loop. It is important that this call returns
-  // as quickly as possible. The dataMutex must only be locked short periods by the task.
-  xSemaphoreTake(dataMutex, portMAX_DELAY);
-
-  // Copy the latest state, calculated by the task
-  memcpy(state, &taskEstimatorState, sizeof(state_t));
-  xSemaphoreGive(dataMutex);
-
-  xSemaphoreGive(runTaskSemaphore);
 }
 
 static bool predictStateForward(uint32_t osTick, float dt) {
