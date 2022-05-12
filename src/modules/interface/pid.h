@@ -130,7 +130,7 @@ void pidReset(PidObject* pid);
  */
 float pidUpdate(PidObject* pid, const float measured, const bool updateError);
 
-float pidUpdateWithVelocity(PidObject* pid, const float measured, const bool updateError, const float velocity);
+float pidUpdateWithDeriv(PidObject* pid, const float measured, const bool updateError, const float velocity);
 
 /**
  * Set a new set point for the PID to track.

@@ -127,7 +127,7 @@ float pidUpdate(PidObject* pid, const float measured, const bool updateError)
 }
 
 
-float pidUpdateWithVelocity(PidObject* pid, const float measured, const bool updateError, const float velocity) //funktionsnamn?
+float pidUpdateWithDeriv(PidObject* pid, const float measured, const bool updateError, const float deriv) //funktionsnamn?
 {
     float output = 0.0f;
 
@@ -139,7 +139,6 @@ float pidUpdateWithVelocity(PidObject* pid, const float measured, const bool upd
     pid->outP = pid->kp * pid->error;
     output += pid->outP;
 
-    float deriv = velocity;
     #ifdef PID_FILTER_ALL
       pid->deriv = deriv;
     #else
