@@ -69,7 +69,7 @@ struct this_s {
 // Maximum roll/pitch angle permited
 static float rLimit  = 20;
 static float pLimit  = 20;
-//static float rpLimitOverhead = 1.10f;
+static float rpLimitOverhead = 1.10f;
 // Velocity maximums
 static float xVelMax = 1.0f;
 static float yVelMax = 1.0f;
@@ -153,27 +153,27 @@ static struct this_s this = {
 
   .pidZ = {
     .init = {
-      .kp = 0.2f,  //ändrad från 2.0
+      .kp = 10.0f,  //ändrad från 2.0
       .ki = 0.0f,  //från 0.5
-      .kd = 0.5f,  //från 0.0
+      .kd = -1.5f,  //från 0.0
     },
     .pid.dt = DT,
   },
 
   .pidP = {
     .init = {
-      .kp = 0.2f,  
+      .kp = 0.1f,  
       .ki = 0.0f,  
-      .kd = 0.5f,  
+      .kd = -0.1f,  
     },
     .pid.dt = DT,
   },
 
   .pidR = {
     .init = {
-      .kp = 0.2f,  
+      .kp = -0.1f,  
       .ki = 0.0f,  
-      .kd = 0.5f,  
+      .kd = 0.1f,  
     },
     .pid.dt = DT,
   },
@@ -204,16 +204,24 @@ void positionControllerInit()
       this.pidVZ.pid.dt, POSITION_RATE, velZFiltCutoff, velZFiltEnable);
 
   pidInit(&this.pidP.pid, this.pidP.setpoint, this.pidP.init.kp, this.pidP.init.ki, this.pidP.init.kd,
-      this.pidP.pid.dt, POSITION_RATE, velFiltCutoff, velFiltEnable); //ej klar
+      this.pidP.pid.dt, POSITION_RATE, 0, false); //ej klar
   pidInit(&this.pidR.pid, this.pidR.setpoint, this.pidR.init.kp, this.pidR.init.ki, this.pidR.init.kd,
-      this.pidR.pid.dt, POSITION_RATE, velZFiltCutoff, velZFiltEnable); // ej klar
+      this.pidR.pid.dt, POSITION_RATE, 0, false); // ej klar
 }
 
+/*
 static float runPid(float input, struct pidAxis_s *axis, float setpoint, float dt) {
   axis->setpoint = setpoint;
 
   pidSetDesired(&axis->pid, axis->setpoint);
   return pidUpdate(&axis->pid, input, true);
+}
+*/
+static float runPid(float input, struct pidAxis_s *axis, float setpoint, float dt, const float velocity) {
+  axis->setpoint = setpoint;
+
+  pidSetDesired(&axis->pid, axis->setpoint);
+  return pidUpdateWithVelocity(&axis->pid, input, true, velocity);
 }
 
 
@@ -240,15 +248,21 @@ void positionController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
   //float globalvx = setpoint->velocity.x;
   //float globalvy = setpoint->velocity.y;
 
-  setpoint->attitude.pitch = runPid(state_body_x, &this.pidP, setp_body_x, DT);
-  setpoint->attitude.roll = runPid(state_body_y, &this.pidR, setp_body_y, DT);
+  this.pidVX.pid.outputLimit = pLimit * rpLimitOverhead;
+  this.pidVY.pid.outputLimit = rLimit * rpLimitOverhead;
+  // Set the output limit to the maximum thrust range
+  this.pidVZ.pid.outputLimit = (UINT16_MAX / 2 / thrustScale);
+  //this.pidVZ.pid.outputLimit = (this.thrustBase - this.thrustMin) / thrustScale;
 
-  //setpoint->attitude.roll  = constrain(setpoint->attitude.roll,  -rLimit, rLimit); //ska detta göras?
-  //setpoint->attitude.pitch = constrain(setpoint->attitude.pitch, -pLimit, pLimit); //ska detta göras? 
+  state_body_vx = state->velocity.x * cosyaw + state->velocity.y * sinyaw;
+  state_body_vy = -state->velocity.x * sinyaw + state->velocity.y * cosyaw;
+
+  setpoint->attitude.pitch = runPid(state_body_x, &this.pidP, setp_body_x, DT, state_body_vx);
+  setpoint->attitude.roll = runPid(state_body_y, &this.pidR, setp_body_y, DT, state_body_vy);
 
     // Thrust
   //float thrustRaw = runPid(state->velocity.z, &this.pidVZ, setpoint->velocity.z, DT);
-  float thrustRaw = runPid(state->position.z, &this.pidZ, setpoint->position.z, DT);
+  float thrustRaw = runPid(state->position.z, &this.pidZ, setpoint->position.z, DT, state->velocity.z);
   // Scale the thrust and add feed forward term
   *thrust = thrustRaw*thrustScale + this.thrustBase;
   // Check for minimum thrust
@@ -330,8 +344,8 @@ void positionControllerResetAllfilters() {
   filterReset(&this.pidVX.pid, POSITION_RATE, velFiltCutoff, velFiltEnable);
   filterReset(&this.pidVY.pid, POSITION_RATE, velFiltCutoff, velFiltEnable);
   filterReset(&this.pidVZ.pid, POSITION_RATE, velZFiltCutoff, velZFiltEnable);
-  filterReset(&this.pidP.pid, POSITION_RATE, velZFiltCutoff, velZFiltEnable); // ej klar
-  filterReset(&this.pidR.pid, POSITION_RATE, velZFiltCutoff, velZFiltEnable); // ej klar
+  filterReset(&this.pidP.pid, POSITION_RATE, 0, false); // ej klar
+  filterReset(&this.pidR.pid, POSITION_RATE, 0, false); // ej klar
 }
 
 /**
