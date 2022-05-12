@@ -230,8 +230,6 @@ static float runPid(float input, struct pidAxis_s *axis, float setpoint, float d
 
 float state_body_x, state_body_y, state_body_vx, state_body_vy;
 
-static int counter = 0;
-
 void positionController(float* thrust, attitude_t *attitude, setpoint_t *setpoint,
                                                              const state_t *state)
 {
