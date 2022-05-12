@@ -93,17 +93,17 @@ def move_linear_simple(scf):
 
 def move_linear_simple_2(scf):
     with MotionCommander(scf, default_height=DEFAULT_HEIGHT) as mc:
-        time.sleep(10)
-        mc.forward(0.5)
-        time.sleep(10)
-        mc.forward(0.5)
-        time.sleep(10)
-        mc.back(0.5)
-        time.sleep(10)
-        mc.left(0.5)
-        time.sleep(10)
-        mc.right(0.5)
-        time.sleep(10)
+        time.sleep(5)
+        mc.forward(50)
+        time.sleep(5)
+        mc.forward(50)
+        time.sleep(5)
+        mc.back(50)
+        time.sleep(5)
+        mc.left(50)
+        time.sleep(5)
+        mc.right(50)
+        time.sleep(5)
         mc.stop()
 
 def move_linear_simple_3(scf):
@@ -179,7 +179,7 @@ if __name__ == '__main__':
 
         # take_off_simple(scf)
         # move_linear_simple(scf)
-        # move_linear_simple_2(scf)
-        move_linear_simple_3(scf)
+        move_linear_simple_2(scf)
+        # move_linear_simple_3(scf)
         # move_box_limit(scf)
         # logconf.stop()
