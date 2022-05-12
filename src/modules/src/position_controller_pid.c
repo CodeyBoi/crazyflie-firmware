@@ -75,7 +75,7 @@ static float xVelMax = 1.0f;
 static float yVelMax = 1.0f;
 static float zVelMax  = 1.0f;
 static float velMaxOverhead = 1.10f;
-static const float thrustScale = 1000.0f;
+static const float thrustScale = 15000.0f;   //
 
 // Feedforward gains
 static float kFFx = 0.0; // feedforward gain for x direction [deg / m/s]
@@ -162,18 +162,18 @@ static struct this_s this = {
 
   .pidP = {
     .init = {
-      .kp = 0.1f,  
+      .kp = 0.15f,  
       .ki = 0.0f,  
-      .kd = -0.1f,  
+      .kd = -0.4f,  
     },
     .pid.dt = DT,
   },
 
   .pidR = {
     .init = {
-      .kp = -0.1f,  
+      .kp = -0.15f,  
       .ki = 0.0f,  
-      .kd = 0.1f,  
+      .kd = 0.4f,  
     },
     .pid.dt = DT,
   },
@@ -257,8 +257,8 @@ void positionController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
   state_body_vx = state->velocity.x * cosyaw + state->velocity.y * sinyaw;
   state_body_vy = -state->velocity.x * sinyaw + state->velocity.y * cosyaw;
 
-  setpoint->attitude.pitch = runPid(state_body_x, &this.pidP, setp_body_x, DT, state_body_vx);
-  setpoint->attitude.roll = runPid(state_body_y, &this.pidR, setp_body_y, DT, state_body_vy);
+  attitude->pitch = -runPid(state_body_x, &this.pidP, setp_body_x, DT, state_body_vx)*15;
+  attitude->roll = -runPid(state_body_y, &this.pidR, setp_body_y, DT, state_body_vy)*15;
 
   // Thrust
   //float thrustRaw = runPid(state->velocity.z, &this.pidVZ, setpoint->velocity.z, DT);
@@ -599,3 +599,19 @@ PARAM_ADD(PARAM_FLOAT | PARAM_PERSISTENT, yVelMax, &yVelMax)
 PARAM_ADD(PARAM_FLOAT | PARAM_PERSISTENT, zVelMax,  &zVelMax)
 
 PARAM_GROUP_STOP(posCtlPid)
+
+
+LOG_GROUP_START(debug)
+
+/**
+ * @brief Acceleration in X [Gs]
+ */
+LOG_ADD(LOG_FLOAT, error, &this.pidZ.pid.error)
+
+/**
+ * @brief Acceleration in Y [Gs]
+ */
+LOG_ADD(LOG_FLOAT, integral, &this.pidZ.pid.integ)
+
+LOG_GROUP_STOP(debug)
+

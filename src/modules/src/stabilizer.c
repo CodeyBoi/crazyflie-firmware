@@ -448,6 +448,13 @@ STATS_CNT_RATE_LOG_ADD(rtStab, &stabilizerRate)
 //  *    Note: Used for debugging but could also be used as a system test
 //  */
 // LOG_ADD(LOG_UINT32, intToOut, &inToOutLatency)
+
+
+LOG_ADD(LOG_FLOAT, pitch, &setpoint.attitude.pitch)
+
+LOG_ADD(LOG_FLOAT, roll, &setpoint.attitude.roll)
+
+
 LOG_GROUP_STOP(stabilizer)
 
 LOG_GROUP_START(controller)
