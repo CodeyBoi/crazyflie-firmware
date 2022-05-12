@@ -214,7 +214,7 @@ static float runPid(float input, struct pidAxis_s *axis, float setpoint, float d
   axis->setpoint = setpoint;
 
   pidSetDesired(&axis->pid, axis->setpoint);
-  return pidUpdate(&axis->pid, input, true);
+  return pidUpdate(&axis->pid, input, true, isZPos);
 }
 */
 static float runPid(float input, struct pidAxis_s *axis, float setpoint, float dt, const float velocity) {
@@ -262,6 +262,7 @@ void positionController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
 
     // Thrust
   //float thrustRaw = runPid(state->velocity.z, &this.pidVZ, setpoint->velocity.z, DT);
+
   float thrustRaw = runPid(state->position.z, &this.pidZ, setpoint->position.z, DT, state->velocity.z);
   // Scale the thrust and add feed forward term
   *thrust = thrustRaw*thrustScale + this.thrustBase;
