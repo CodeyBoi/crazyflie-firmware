@@ -34,6 +34,8 @@
 #include <math.h>
 #include <float.h>
 
+#include "debug.h"
+
 void pidInit(PidObject* pid, const float desired, const float kp,
              const float ki, const float kd, const float dt,
              const float samplingRate, const float cutoffFreq,
@@ -126,9 +128,15 @@ float pidUpdate(PidObject* pid, const float measured, const bool updateError)
     return output;
 }
 
+static int counter = 0;
 
-float pidUpdateWithDeriv(PidObject* pid, const float measured, const bool updateError, const float deriv) //funktionsnamn?
+float pidUpdateWithDeriv(PidObject* pid, const float measured, const bool updateError, const float velocity) //funktionsnamn?
 {
+
+    if(counter >= 1000) {
+        DEBUG_PRINT("deriv in pidUpdateWithDeriv: %d\n", (int) (100*velocity));
+      }
+
     float output = 0.0f;
 
     if (updateError)
@@ -138,6 +146,12 @@ float pidUpdateWithDeriv(PidObject* pid, const float measured, const bool update
 
     pid->outP = pid->kp * pid->error;
     output += pid->outP;
+
+    if(counter >= 1000) {
+      DEBUG_PRINT("output after pid->kp * pid->error: %d\n", (int) (100*output));
+    }
+
+    float deriv = velocity;
 
     #ifdef PID_FILTER_ALL
       pid->deriv = deriv;
@@ -202,6 +216,11 @@ float pidUpdateWithDeriv(PidObject* pid, const float measured, const bool update
     if(pid->outputLimit != 0)
     {
       output = constrain(output, -pid->outputLimit, pid->outputLimit);
+    }
+
+    if(counter >= 1000) {
+      DEBUG_PRINT("output result: %d\n", (int) (100*output));
+      counter = 0;
     }
 
 
