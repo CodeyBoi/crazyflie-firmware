@@ -30,7 +30,7 @@ import cflib.crtp
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
-from cflib.positioning.motion_commander import MotionCommander
+from cflib.positioning.position_hl_commander import PositionHlCommander
 from cflib.utils import uri_helper
 
 URI = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E7E7')
@@ -92,19 +92,28 @@ def move_linear_simple(scf):
         mc.stop()
 
 def move_linear_simple_2(scf):
-    with MotionCommander(scf, default_height=DEFAULT_HEIGHT) as mc:
-        time.sleep(5)
-        mc.forward(50)
-        time.sleep(5)
-        mc.forward(50)
-        time.sleep(5)
-        mc.back(50)
-        time.sleep(5)
-        mc.left(50)
-        time.sleep(5)
-        mc.right(50)
-        time.sleep(5)
-        mc.stop()
+    with PositionHlCommander(scf, default_height=DEFAULT_HEIGHT) as pc:
+        print("Takeoff")
+        time.sleep(3)
+
+        print("Forward")
+        pc.forward(0.5)
+        time.sleep(15)
+
+        print("Left")
+        pc.left(0.5)
+        time.sleep(15)
+
+        print("Right")
+        pc.right(0.5)
+        time.sleep(15)
+
+        print("Left")
+        pc.left(0.5)
+        time.sleep(3)
+
+        print("Land")
+        pc.land()
 
 def move_linear_simple_3(scf):
     with MotionCommander(scf, default_height=DEFAULT_HEIGHT) as mc:
@@ -121,8 +130,9 @@ def prettyPrint(data):
         print(value, end=',')
     print("")
 
-def log_pos_callback(timestamp, data, logconf):
-    prettyPrint(data)
+#def log_pos_callback(timestamp, data, logconf):
+    #a=1
+    #prettyPrint(data)
     #global position_estimate
     #position_estimate[0] = data['stateEstimate.x']
     #position_estimate[1] = data['stateEstimate.y']
@@ -149,31 +159,31 @@ if __name__ == '__main__':
         time.sleep(1)
 
         logconf = LogConfig(name='Position', period_in_ms=10)
-        logconf.add_variable('stateEstimateZ.x', 'int16_t')
-        logconf.add_variable('stateEstimateZ.y', 'int16_t')
-        logconf.add_variable('stateEstimateZ.z', 'int16_t')
-        logconf.add_variable('stateEstimateZ.vx', 'int16_t')
-        logconf.add_variable('stateEstimateZ.vy', 'int16_t')
-        logconf.add_variable('stateEstimateZ.vz', 'int16_t')
+        #logconf.add_variable('stateEstimateZ.x', 'int16_t')
+        #logconf.add_variable('stateEstimateZ.y', 'int16_t')
+        #logconf.add_variable('stateEstimateZ.z', 'int16_t')
+        #logconf.add_variable('stateEstimateZ.vx', 'int16_t')
+        #logconf.add_variable('stateEstimateZ.vy', 'int16_t')
+        #logconf.add_variable('stateEstimateZ.vz', 'int16_t')
         #logconf.add_variable('stateEstimateZ.ax', 'int16_t')
         #logconf.add_variable('stateEstimateZ.ay', 'int16_t')
         #logconf.add_variable('stateEstimateZ.az', 'int16_t')
-        logconf.add_variable('stabilizer.thrust', 'float')
+        #logconf.add_variable('stabilizer.thrust', 'float')
         #logconf.add_variable('debug.error', 'float')
         #logconf.add_variable('debug.integral', 'float')
-        logconf.add_variable('controller.pitch', 'float')
-        logconf.add_variable('controller.roll', 'float')
+        #logconf.add_variable('controller.pitch', 'float')
+        #logconf.add_variable('controller.roll', 'float')
 
         scf.cf.log.add_config(logconf)
-        logconf.data_received_cb.add_callback(log_pos_callback)
+        #logconf.data_received_cb.add_callback(log_pos_callback)
 
         if not deck_attached_event.wait(timeout=5):
             print('No flow deck detected!')
             sys.exit(1)
 
-        for var in logconf.variables:
-            print(var.name, end=',')
-        print("")
+        #for var in logconf.variables:
+        #    print(var.name, end=',')
+        #print("")
 
         logconf.start()
 
