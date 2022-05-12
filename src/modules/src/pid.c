@@ -126,8 +126,6 @@ float pidUpdate(PidObject* pid, const float measured, const bool updateError)
 
 float pidUpdateWithDeriv(PidObject* pid, const float measured, const bool updateError, const float deriv)
 {
-
-
   float output = 0.0f;
 
   if (updateError)

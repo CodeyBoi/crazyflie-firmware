@@ -1,4 +1,5 @@
 
+#include <debug.h>
 #include "stabilizer.h"
 #include "stabilizer_types.h"
 
@@ -57,6 +58,8 @@ static float capAngle(float angle) {
   return result;
 }
 
+static int counter = 0;
+
 void controllerPid(control_t *control, setpoint_t *setpoint,
                                          const sensorData_t *sensors,
                                          const state_t *state,
@@ -100,6 +103,10 @@ void controllerPid(control_t *control, setpoint_t *setpoint,
       attitudeDesired.pitch = setpoint->attitude.pitch;
     }
 
+    if(++counter >= 1000){
+          DEBUG_PRINT("controller_pid :: attitude roll and pitch %d %d\n", (int)(attitudeDesired.roll*1000), (int)(attitudeDesired.pitch*1000));
+          counter = 0;
+    }
     attitudeControllerCorrectAttitudePID(state->attitude.roll, state->attitude.pitch, state->attitude.yaw,
                                 attitudeDesired.roll, attitudeDesired.pitch, attitudeDesired.yaw,
                                 &rateDesired.roll, &rateDesired.pitch, &rateDesired.yaw);
