@@ -598,10 +598,20 @@ PARAM_ADD(PARAM_FLOAT | PARAM_PERSISTENT, yVelMax, &yVelMax)
  */
 PARAM_ADD(PARAM_FLOAT | PARAM_PERSISTENT, zVelMax,  &zVelMax)
 
-
-
-PARAM_ADD(PARAM_FLOAT | PARAM_PERSISTENT, error, &this.pidZ.pid.error)
-PARAM_ADD(PARAM_FLOAT | PARAM_PERSISTENT, integral, &this.pidZ.pid.integ)
-
-
 PARAM_GROUP_STOP(posCtlPid)
+
+
+LOG_GROUP_START(debug)
+
+/**
+ * @brief Acceleration in X [Gs]
+ */
+LOG_ADD(LOG_FLOAT, error, &this.pidZ.pid.error)
+
+/**
+ * @brief Acceleration in Y [Gs]
+ */
+LOG_ADD(LOG_FLOAT, integral, &this.pidZ.pid.integ)
+
+LOG_GROUP_STOP(debug)
+

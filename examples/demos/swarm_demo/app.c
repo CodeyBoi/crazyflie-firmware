@@ -84,6 +84,9 @@ static logVarId_t logIdPmState;
 static logVarId_t logIdlighthouseEstBs0Rt;
 static logVarId_t logIdlighthouseEstBs1Rt;
 
+static logVarId_t logIdError;
+static logVarId_t logIdIntegral;
+
 static paramVarId_t paramIdStabilizerController;
 static paramVarId_t paramIdCommanderEnHighLevel;
 static paramVarId_t paramIdLighthouseMethod;
@@ -166,6 +169,8 @@ static float sequenceTime(struct poly4d sequence[], int count) {
 static float getX() { return logGetFloat(logIdStateEstimateX); }
 static float getY() { return logGetFloat(logIdStateEstimateY); }
 static float getZ() { return logGetFloat(logIdStateEstimateZ); }
+static float getError() { return logGetFloat(logIdError); }
+static float getIntegral() { return logGetFloat(logIdIntegral); }
 static float getVarPX() { return logGetFloat(logIdKalmanVarPX); }
 static float getVarPY() { return logGetFloat(logIdKalmanVarPY); }
 static float getVarPZ() { return logGetFloat(logIdKalmanVarPZ); }
@@ -235,6 +240,8 @@ void appMain() {
   logIdStateEstimateX = logGetVarId("stateEstimate", "x");
   logIdStateEstimateY = logGetVarId("stateEstimate", "y");
   logIdStateEstimateZ = logGetVarId("stateEstimate", "z");
+  logIdError = logGetVarId("debug", "error");
+  logIdError = logGetVarId("debug", "integral");
   logIdKalmanVarPX = logGetVarId("kalman", "varPX");
   logIdKalmanVarPY = logGetVarId("kalman", "varPY");
   logIdKalmanVarPZ = logGetVarId("kalman", "varPZ");
