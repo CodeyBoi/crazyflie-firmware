@@ -154,7 +154,7 @@ static struct this_s this = {
   .pidZ = {
     .init = {
       .kp = 10.0f,  //ändrad från 2.0
-      .ki = 0.0f,  //från 0.5
+      .ki = 1.0f,  //från 0.5
       .kd = -1.5f,  //från 0.0
     },
     .pid.dt = DT,
@@ -597,5 +597,11 @@ PARAM_ADD(PARAM_FLOAT | PARAM_PERSISTENT, yVelMax, &yVelMax)
  * @brief Maximum Z Velocity
  */
 PARAM_ADD(PARAM_FLOAT | PARAM_PERSISTENT, zVelMax,  &zVelMax)
+
+
+
+PARAM_ADD(PARAM_FLOAT | PARAM_PERSISTENT, error, &this.pidZ.pid.error)
+PARAM_ADD(PARAM_FLOAT | PARAM_PERSISTENT, integral, &this.pidZ.pid.integ)
+
 
 PARAM_GROUP_STOP(posCtlPid)
