@@ -224,7 +224,7 @@ static float runPid(float input, struct pidAxis_s *axis, float setpoint, float d
   axis->setpoint = setpoint;
 
   pidSetDesired(&axis->pid, axis->setpoint);
-  return pidUpdateWithDeriv(&axis->pid, input, true, deriv);
+  return pidUpdate(&axis->pid, input, true);
 }
 
 
