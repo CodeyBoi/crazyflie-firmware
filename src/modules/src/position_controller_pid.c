@@ -78,7 +78,7 @@ static float zVelMax  = 1.0f;
 static float velMaxOverhead = 1.10f;
 static const float thrustScale = 15000.0f;   //
 
-static const float attitudeScale = 15.0f;
+static const float attitudeScale = 100.0f;
 
 // Feedforward gains
 static float kFFx = 0.0; // feedforward gain for x direction [deg / m/s]
