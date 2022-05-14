@@ -110,8 +110,8 @@ def move_linear_simple_2(scf):
         pc.right(0.3)
         time.sleep(7.5)
 
-        eprint("Left")
-        pc.left(0.3)
+        eprint("Up")
+        pc.up(0.3)
         time.sleep(7.5)
 
         eprint("Land")
@@ -170,13 +170,15 @@ if __name__ == '__main__':
         #logconf.add_variable('stateEstimateZ.ax', 'int16_t')
         #logconf.add_variable('stateEstimateZ.ay', 'int16_t')
         #logconf.add_variable('stateEstimateZ.az', 'int16_t')
-        #logconf.add_variable('debug.error', 'float')
         #logconf.add_variable('debug.integral', 'float')
-        #logconf.add_variable('controller.pitch', 'float')
+        logconf.add_variable('controller.pitch', 'float')
+        logconf.add_variable('controller.roll', 'float')
+        
         logconf.add_variable('ctrltargetZ.x', 'float')
         logconf.add_variable('ctrltargetZ.y', 'float')
         logconf.add_variable('ctrltargetZ.z', 'float')
-        logconf.add_variable('stabilizer.thrust', 'float')
+        #logconf.add_variable('stabilizer.thrust', 'float')
+        #logconf.add_variable('debug.error', 'float')
 
         scf.cf.log.add_config(logconf)
         logconf.data_received_cb.add_callback(log_pos_callback)

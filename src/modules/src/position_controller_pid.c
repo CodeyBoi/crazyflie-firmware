@@ -76,9 +76,9 @@ static float xVelMax = 1.0f;
 static float yVelMax = 1.0f;
 static float zVelMax  = 1.0f;
 static float velMaxOverhead = 1.10f;
-static const float thrustScale = 15000.0f;   //
+static const float thrustScale = 16.3f * 1000.0f; // 20.7f * 1000.0f;   //
 
-static const float attitudeScale = 100.0f;
+static const float attitudeScale = 1000.0f; // 180.0f/(float)M_PI; // 100.0f;
 
 // Feedforward gains
 static float kFFx = 0.0; // feedforward gain for x direction [deg / m/s]
@@ -156,7 +156,7 @@ static struct this_s this = {
 
   .pidZ = {
     .init = {
-      .kp = 10.0f,  //ändrad från 2.0
+      .kp = 2.0f,  //ändrad från 2.0
       .ki = 0.0f,  //från 0.5
       .kd = -1.5f,  //från 0.0
     },
@@ -165,18 +165,18 @@ static struct this_s this = {
 
   .pidP = {
     .init = {
-      .kp = 0.15f,  
+      .kp = 0.0267f,  
       .ki = 0.0f,  
-      .kd = -0.4f,  
+      .kd = -0.0645f,  
     },
     .pid.dt = DT,
   },
 
   .pidR = {
     .init = {
-      .kp = -0.15f,  
+      .kp = -0.0267f,
       .ki = 0.0f,  
-      .kd = 0.4f,  
+      .kd = 0.0645f,  
     },
     .pid.dt = DT,
   },
@@ -184,7 +184,7 @@ static struct this_s this = {
   #ifdef IMPROVED_BARO_Z_HOLD
     .thrustBase = 38000,
   #else
-    .thrustBase = 36000,
+    .thrustBase = 42000, // 36000,
   #endif
   .thrustMin  = 20000,
 };
