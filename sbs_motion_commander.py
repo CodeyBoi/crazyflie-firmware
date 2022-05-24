@@ -98,21 +98,37 @@ def move_linear_simple_2(scf):
         eprint("Takeoff")
         time.sleep(3)
 
+        eprint("Up")
+        pc.up(1)
+        time.sleep(10)
+
         eprint("Forward")
-        pc.forward(0.3)
-        time.sleep(7.5)
+        pc.forward(0.5)
+        time.sleep(10)
 
         eprint("Left")
-        pc.left(0.3)
-        time.sleep(7.5)
+        pc.left(0.5)
+        time.sleep(10)
+
+        eprint("Down")
+        pc.down(0.5)
+        time.sleep(10)        
 
         eprint("Right")
-        pc.right(0.3)
-        time.sleep(7.5)
+        pc.right(0.5)
+        time.sleep(10)
 
         eprint("Up")
-        pc.up(0.3)
-        time.sleep(7.5)
+        pc.up(0.5)
+        time.sleep(10)
+
+        eprint("Back")
+        pc.back(0.5)
+        time.sleep(10)
+
+        eprint("Down")
+        pc.up(0.5)
+        time.sleep(10)
 
         eprint("Land")
         pc.stop()
@@ -161,9 +177,9 @@ if __name__ == '__main__':
         time.sleep(1)
 
         logconf = LogConfig(name='Position', period_in_ms=10)
-        logconf.add_variable('stateEstimateZ.x', 'int16_t')
-        logconf.add_variable('stateEstimateZ.y', 'int16_t')
-        logconf.add_variable('stateEstimateZ.z', 'int16_t')
+        #logconf.add_variable('stateEstimateZ.x', 'int16_t')
+        #logconf.add_variable('stateEstimateZ.y', 'int16_t')
+        #logconf.add_variable('stateEstimateZ.z', 'int16_t')
         #logconf.add_variable('stateEstimateZ.vx', 'int16_t')
         #logconf.add_variable('stateEstimateZ.vy', 'int16_t')
         #logconf.add_variable('stateEstimateZ.vz', 'int16_t')
@@ -171,12 +187,12 @@ if __name__ == '__main__':
         #logconf.add_variable('stateEstimateZ.ay', 'int16_t')
         #logconf.add_variable('stateEstimateZ.az', 'int16_t')
         #logconf.add_variable('debug.integral', 'float')
-        logconf.add_variable('controller.pitch', 'float')
-        logconf.add_variable('controller.roll', 'float')
+        #logconf.add_variable('controller.pitch', 'float')
+        #logconf.add_variable('controller.roll', 'float')
         
-        logconf.add_variable('ctrltargetZ.x', 'float')
-        logconf.add_variable('ctrltargetZ.y', 'float')
-        logconf.add_variable('ctrltargetZ.z', 'float')
+        #logconf.add_variable('ctrltargetZ.x', 'float')
+        #logconf.add_variable('ctrltargetZ.y', 'float')
+        #logconf.add_variable('ctrltargetZ.z', 'float')
         #logconf.add_variable('stabilizer.thrust', 'float')
         #logconf.add_variable('debug.error', 'float')
 
@@ -187,11 +203,11 @@ if __name__ == '__main__':
             print('No flow deck detected!')
             sys.exit(1)
 
-        for var in logconf.variables:
-            print(var.name, end=',')
-        print("")
+        #for var in logconf.variables:
+        #    print(var.name, end=',')
+        #print("")
 
-        logconf.start()
+        #logconf.start()
 
         # take_off_simple(scf)
         # move_linear_simple(scf)
